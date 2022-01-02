@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const useStickyState = (defaultValue: Object, key: string) => {
+const useStickyState = (
+  defaultValue: { [x: string]: boolean | string },
+  key: string
+) => {
   const [value, setValue] = useState(() => {
     const stickyValue = window.localStorage.getItem(key);
     return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;

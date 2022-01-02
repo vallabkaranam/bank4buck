@@ -1,31 +1,45 @@
-import React, { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Favorite from "../Favorite";
-import { removeObj, toDollars } from "../../utils";
+import {
+  addObj,
+  bankUrl,
+  locationsUrl,
+  removeObj,
+  toDollars,
+} from "../../utils";
+import { Bank, bankObject } from "../../Bank.definitions";
 
 interface Props {
-  favorites: Object;
-  setFavorites: any;
-  notes: any;
-  setNotes: any;
+  favorites: { [x: string]: boolean };
+  setFavorites: (obj: object) => void;
+  notes: { [x: string]: string };
+  setNotes: (obj: object) => void;
 }
 
 const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [bankDetail, setBankDetail] = useState({} as any);
+  const [bankDetail, setBankDetail] = useState({} as bankObject);
+  const [totalLocations, setTotalLocations] = useState(0);
+  const [locationDetail, setLocationDetail] = useState<Bank[]>([]);
   const [text, setText] = useState(id && notes[id] ? notes[id] : "");
 
   useEffect(() => {
     async function getBankData() {
       const res = await axios.get(
-        `https://banks.data.fdic.gov/api/institutions?limit=1&filters=UNINUM:${id}&fields=NAME,ADDRESS,ASSET,ACTIVE,ESTYMD,NETINC,STNAME,WEBADDR,ZIP,UNINUM,CHARTER,FLDOFF`
+        `${bankUrl}?limit=1&filters=UNINUM:${id}&fields=NAME,ADDRESS,ASSET,ACTIVE,ESTYMD,NETINC,STNAME,WEBADDR,ZIP,UNINUM,CHARTER,FLDOFF`
+      );
+      const locationRes = await axios.get(
+        `${locationsUrl}?limit=5&filters=FI_UNINUM:${id}&fields=NAME,ADDRESS,CITY,STNAME,UNINUM)`
       );
       setBankDetail(res.data.data[0].data);
+      setTotalLocations(locationRes.data.totals.count);
+      setLocationDetail(locationRes.data.data);
     }
     getBankData();
-  }, []);
+  }, [id]);
 
   const {
     ACTIVE,
@@ -47,7 +61,6 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
   ) : (
     <Fragment>
       <div className="card bg-light details_container">
-        {console.log(bankDetail)}
         <div className="details_column">
           <span
             className={`badge ${ACTIVE ? "badge-success" : "badge-danger"}`}
@@ -118,10 +131,43 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
                 <b>Net Income:</b> {toDollars(NETINC)}
               </li>
             )}
+            {!!totalLocations && (
+              <li>
+                <i className="fas fa-map" style={{ width: 20 }} />
+                <b>Total Locations:</b> {totalLocations}
+              </li>
+            )}
+          </ul>
+          {!!totalLocations && (
+            <div style={{ marginTop: 20 }}>
+              <u>
+                <b>Check out these other locations near you: </b>
+              </u>
+            </div>
+          )}
+          <ul>
+            {locationDetail.map((location) => {
+              const {
+                ADDRESS: locationAddress,
+                CITY: locationCity,
+                STNAME: locationState,
+                ID: locationId,
+              } = location.data;
+              return (
+                <li key={locationId}>
+                  {locationAddress}, {locationCity}, {locationState}
+                </li>
+              );
+            })}
+
             {WEBADDR && (
               <li style={{ marginTop: "0.5rem" }}>
                 <i className="fas fa-link" style={{ height: 16, width: 20 }} />
-                <a href={`http://${WEBADDR}`} target="_blank">
+                <a
+                  href={`http://${WEBADDR}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <b>Visit the website</b>
                 </a>
               </li>
@@ -131,34 +177,23 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
         <div>
           Notes:
           <textarea
+            className="notes_textarea"
             value={text}
             onChange={(ev) => setText(ev.target.value)}
             placeholder={"Leave a note..."}
-            style={{
-              resize: "vertical",
-              height: "20rem",
-              borderRadius: 5,
-              marginTop: 10,
-            }}
           />
-          <div
-            style={{
-              marginTop: 10,
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
+          <div className="buttons_row">
             <button
               className="btn btn-success btn-sm"
               onClick={(ev) => {
                 ev.preventDefault();
                 if (
-                  (id && notes[id] && text === "") ||
-                  (text === "" && id && !(id in favorites))
+                  (notes[UNINUM] && text === "") ||
+                  (text === "" && !(UNINUM in favorites))
                 ) {
-                  removeObj(notes, setNotes, id);
+                  removeObj(notes, setNotes, UNINUM);
                 } else if (text !== "") {
-                  setNotes({ ...notes, [bankDetail.UNINUM]: text });
+                  addObj(notes, setNotes, UNINUM, text);
                 }
                 navigate(-1);
               }}
@@ -166,18 +201,19 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
               Save and Exit
             </button>
             <button
-              className={"btn btn-dark btn-sm"}
+              className="btn btn-dark btn-sm"
               onClick={(ev) => {
                 ev.preventDefault();
-                if (id && notes[id] && text !== notes[id]) {
+                if (
+                  (notes[UNINUM] && text !== notes[UNINUM]) ||
+                  (!notes[UNINUM] && text !== "")
+                ) {
                   if (
                     window.confirm(
-                      "You have unsaved changes! Are you sure you want to go back without saving?"
+                      "You have unsaved changes! Are you sure you want to go back without saving? Your changes will be lost."
                     )
                   ) {
                     navigate(-1);
-                  } else {
-                    console.log("hi");
                   }
                 } else {
                   navigate(-1);
@@ -192,11 +228,10 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
           <Favorite
             favorites={favorites}
             setFavorites={setFavorites}
-            id={bankDetail.UNINUM?.toString()}
+            id={UNINUM}
           />
         </div>
       </div>
-      <h1></h1>
     </Fragment>
   );
 };

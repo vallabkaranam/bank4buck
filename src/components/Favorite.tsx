@@ -1,10 +1,10 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { addObj, removeObj } from "../utils";
 
 interface Props {
-  favorites: Object;
+  favorites: { [x: string]: boolean };
   id: string;
-  setFavorites: any;
+  setFavorites: (obj: object) => void;
 }
 const Favorite = ({ favorites, setFavorites, id }: Props) => {
   return (

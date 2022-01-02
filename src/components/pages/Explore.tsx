@@ -1,27 +1,28 @@
-import React, { useState, useEffect, Fragment } from "react";
-import Search from "../layout/Search";
+import { useState, useEffect, Fragment } from "react";
+import Search from "../items/Search";
 import axios from "axios";
 import usePageBottom from "../../hooks/usePageBottom";
-import BankList from "../layout/BankList";
+import BankList from "../items/BankList";
 import Spinner from "../Spinner";
 import ScrollToTop from "../ScrollToTop";
+import { bankUrl, limit } from "../../utils";
+import { Bank } from "../../Bank.definitions";
 
 interface Props {
-  favorites: any;
-  setFavorites: any;
-  notes: any;
+  favorites: { [x: string]: boolean };
+  setFavorites: (obj: object) => void;
+  notes: { [x: string]: string };
 }
 const Explore = ({ favorites, setFavorites, notes }: Props) => {
-  const [banksList, setBanksList] = useState<any[]>([]);
+  const [banksList, setBanksList] = useState<Bank[]>([]);
   const [totalBankCount, setTotalBankCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState({});
-  const limit = 30;
   const isPageBottom = usePageBottom();
 
-  let url = `https://banks.data.fdic.gov/api/institutions?limit=${limit}&search=name:${searchKeyword}&offset=${offset}&filters=!UNINUM:(${Object.keys(
+  let url = `${bankUrl}?limit=${limit}&search=name:${searchKeyword}&offset=${offset}&fields=NAME,ACTIVE,CITY,STNAME,ASSET,NETINC,UNINUM&filters=!UNINUM:(${Object.keys(
     favorites
   )
     .concat(Object.keys(notes))

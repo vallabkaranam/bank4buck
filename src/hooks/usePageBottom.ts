@@ -1,8 +1,7 @@
-// utils/usePageBottom.js
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function usePageBottom() {
-  const [bottom, setBottom] = React.useState(false);
+  const [bottom, setBottom] = useState(false);
 
   useEffect(() => {
     function handleScroll() {

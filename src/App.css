@@ -81,10 +81,6 @@ img {
   color: var(--dark-color);
 }
 
-.text-center {
-  text-align: center;
-}
-
 .text-right {
   text-align: right;
 }
@@ -475,7 +471,7 @@ table th {
 }
 
 .details_column {
-  flex: 0 0 300px;
+  flex: 0 0 360px;
 }
 
 .favorites_column {
@@ -525,4 +521,21 @@ table th {
   100% {
     opacity: 0.5;
   }
+}
+
+.notes_textarea {
+  resize: vertical;
+  height: 28rem;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.buttons_row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quick_info_column {
+  width: 300px;
 }

@@ -1,7 +1,7 @@
-import React, { useState, Fragment } from "react";
+import { Fragment } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Navbar from "./components/layout/Navbar";
+import Navbar from "./components/items/Navbar";
 import MyHome from "./components/pages/MyHome";
 import BankDetails from "./components/pages/BankDetails";
 import About from "./components/pages/About";

@@ -1,29 +1,27 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import { Bank } from "../../Bank.definitions";
 import { toDollars } from "../../utils";
 import Favorite from "../Favorite";
 interface Props {
-  bank: any;
-  notes: any;
-  favorites: any;
-  setFavorites: any;
+  bank: Bank;
+  notes: { [x: string]: string };
+  favorites: { [x: string]: boolean };
+  setFavorites: (obj: object) => void;
 }
 const BankItem = ({ bank, notes, favorites, setFavorites }: Props) => {
-  const id = bank.data.UNINUM;
+  const { UNINUM: id, NAME, ACTIVE, CITY, STNAME, ASSET, NETINC } = bank.data;
   return (
     <div className="card bg-light bank_item_container">
-      <span style={{ width: 300 }}>
+      <span className="quick_info_column">
         <h3 className="text-primary text-left item_title">
-          <Link to={`/banks/${id}`}>{bank.data.NAME}</Link>
+          <Link to={`/banks/${id}`}>{NAME}</Link>
         </h3>
         <ul className="list">
           <li>
             <span
-              className={`badge ${
-                bank.data.ACTIVE ? "badge-success" : "badge-primary"
-              }`}
+              className={`badge ${ACTIVE ? "badge-success" : "badge-primary"}`}
             >
-              {bank.data.ACTIVE ? "Active" : "Inactive"}
+              {ACTIVE ? "Active" : "Inactive"}
             </span>
           </li>
 
@@ -32,17 +30,17 @@ const BankItem = ({ bank, notes, favorites, setFavorites }: Props) => {
               className="fas fa-map-marker-alt"
               style={{ height: 16, width: 14 }}
             />{" "}
-            {`${bank.data.CITY}, ${bank.data.STNAME}`}
+            {`${CITY}, ${STNAME}`}
           </li>
           <li>
             <i
               className="fas fa-dollar-sign"
               style={{ height: 16, width: 14 }}
             />{" "}
-            {toDollars(bank.data.ASSET)}
+            {toDollars(ASSET)}
           </li>
           <li>
-            <i className="far fa-plus-square" /> {toDollars(bank.data.NETINC)}
+            <i className="far fa-plus-square" /> {toDollars(NETINC)}
           </li>
         </ul>
       </span>
@@ -50,7 +48,7 @@ const BankItem = ({ bank, notes, favorites, setFavorites }: Props) => {
         <span>
           <Favorite favorites={favorites} setFavorites={setFavorites} id={id} />
         </span>
-        {id in notes ? <i className="fas fa-sticky-note" /> : null}
+        {id in notes ? <i className="fas fa-sticky-note text-center" /> : null}
       </div>
     </div>
   );

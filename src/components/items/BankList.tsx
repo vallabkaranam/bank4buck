@@ -1,11 +1,11 @@
-import React from "react";
+import { Bank } from "../../Bank.definitions";
 import BankItem from "./BankItem";
 
 interface Props {
-  list: Array<any>;
-  notes: Object;
-  favorites: Object;
-  setFavorites: any;
+  list: Array<Bank>;
+  notes: { [x: string]: string };
+  favorites: { [x: string]: boolean };
+  setFavorites: (obj: object) => void;
 }
 
 const BankList = ({ list, notes, favorites, setFavorites }: Props) => {

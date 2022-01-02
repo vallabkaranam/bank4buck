@@ -1,26 +1,27 @@
-import React, { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, Fragment } from "react";
 import axios from "axios";
 import usePageBottom from "../../hooks/usePageBottom";
-import Search from "../layout/Search";
-import BankList from "../layout/BankList";
+import Search from "../items/Search";
+import BankList from "../items/BankList";
 import Spinner from "../Spinner";
-import money from "../../components/money.png";
+import money from "../../assets/money.png";
 import ScrollToTop from "../ScrollToTop";
+import { bankUrl, limit } from "../../utils";
+import { Bank } from "../../Bank.definitions";
 
 interface Props {
-  favorites: any;
-  setFavorites: any;
-  notes: any;
+  favorites: { [x: string]: boolean };
+  setFavorites: (obj: object) => void;
+  notes: { [x: string]: string };
 }
 
 const MyHome = ({ favorites, setFavorites, notes }: Props) => {
-  const [banksList, setBanksList] = useState<any[]>([]);
+  const [banksList, setBanksList] = useState<Bank[]>([]);
   const [totalBankCount, setTotalBankCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState({});
-  const limit = 30;
   const isPageBottom = usePageBottom();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const MyHome = ({ favorites, setFavorites, notes }: Props) => {
     async function getBanks() {
       try {
         const res = await axios.get(
-          `https://banks.data.fdic.gov/api/institutions?limit=${limit}&search=name:${searchKeyword}&offset=${offset}&filters=UNINUM:(${Object.keys(
+          `${bankUrl}?limit=${limit}&search=name:${searchKeyword}&offset=${offset}&fields=NAME,ACTIVE,CITY,STNAME,ASSET,NETINC,UNINUM&filters=UNINUM:(${Object.keys(
             favorites
           )
             .concat(Object.keys(notes))
@@ -58,9 +59,7 @@ const MyHome = ({ favorites, setFavorites, notes }: Props) => {
     if (isLoading) {
       getBanks();
     }
-  }, [isLoading, offset, searchKeyword, favorites]);
-
-  console.log(isPageBottom);
+  }, [isLoading, offset, searchKeyword, favorites, notes]);
 
   useEffect(() => {
     if (isPageBottom && banksList.length < totalBankCount) {
