@@ -164,7 +164,9 @@ const BankDetails = ({ favorites, setFavorites, notes, setNotes }: Props) => {
               <li style={{ marginTop: "0.5rem" }}>
                 <i className="fas fa-link" style={{ height: 16, width: 20 }} />
                 <a
-                  href={`http://${WEBADDR}`}
+                  href={
+                    WEBADDR.startsWith("http") ? WEBADDR : `https://${WEBADDR}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                 >
