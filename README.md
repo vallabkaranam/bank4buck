@@ -1,6 +1,17 @@
+# Bank4Buck
+
+## About
+React SPA built with Typescript for querying and managing financial institutions using data from the FDIC API. Users can search for institutions, like them, and leave important notes about them. User preferences will be stored across reloads to ensure optimal UX. The app is equipped with infinite scrolling among many UI features, and is tested using React Testing Library and Jest.
+
+## Deployed
+View the application at: https://bank4buck.herokuapp.com/
+
+## Tech Stack
+ReactJS, React Hooks, Typescript, CSS, React Router, LocalStorage, React Testing Library, Jest, FDIC API
+
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). 
 
 ## Available Scripts
 
